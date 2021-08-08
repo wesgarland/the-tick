@@ -1,0 +1,35 @@
+IFRAME.includer
+{
+  display: none;
+}
+
+/** Prevent users from clicking on links etc while document is still getting ready */
+BODY
+{
+  pointer-events: none;
+  cursor: wait;
+}
+
+BODY[loaded=true]
+{
+  pointer-events: initial;
+  cursor: initial;
+}
+
+/** Hide content until the body's content attribute says to show it */
+.content:not(#content)
+{
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 100ms ease-in;
+}
+
+BODY[content=about]      #about,
+BODY[content=configure]  #configure,
+BODY[content=view-stats] #view-stats,
+BODY[content=operate]    #operate,
+BODY[content=output]     #output
+{
+  visibility: visible;
+  opacity: 1;
+}

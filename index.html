@@ -7,9 +7,32 @@
     <script src="http://wes.office.kingsds.network/git/bravojs/bravo.js"></script>
     <script src="http://scheduler.wes.office.kingsds.network/dcp-client/dcp-client.js"></script>
     <script src="./main.js"></script>
+    <script src="./includer.js"></script>
+    <link rel="stylesheet" href="./layout.css">
+    <link rel="stylesheet" href="./skin.css">
+    <link rel="stylesheet" href="./ui.css">
   </head>
   <body>
-    <center><h1>The Tick</h1></center>
+    <div id='top-bar'    class='top-bar'></div>
+    <div id='menu'       class='menu'></div>
+    <div id='bottom-bar' class='bottom-bar'></div>
+    <div id='content'    class='content'></div>
+
+    <div class='top-bar'><center><h3>The Tick</h3></center></div>
+    <div class='menu'>
+      <ul>
+	<li><a href="#about"     >About</a>
+	<li><a href="#configure" >Configure</a>
+	<li><a href="#operate"   >Operate</a>
+	<li><a href="#output"    >Output</a>
+	<li><a href="#view-stats">View Statistics</a>
+      </ul>
+    </div>
+    <include class='content' id='about'      src='./about.html'     ></include>
+    <include class='content' id='configure'  src='./configure.html' ></include>
+    <include class='content' id='operate'    src='./operate.html'   ></include>
+    <include class='content' id='view-stats' src='./view-stats.html'></include>
+    <include class='content' id='output'     src="./output.html"    ></include>
   </body>
 </html>
   

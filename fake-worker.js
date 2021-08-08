@@ -7,6 +7,24 @@ module.declare([], function(require, exports, module) {
   const debugging = require('dcp/debugging').scope('fake-worker');
   const stealMethods = [ 'fetchTask', 'workerOpaqueId', 'generateWorkerComputeGroups' ];
 
+  function output()
+  {
+    var outs = [];
+
+    for (let arg of arguments)
+    {
+      if (arg.inspect)
+	outs.push(arg.inspect());
+      else if (typeof arg === 'object')
+	outs.push(JSON.stringify(arg));
+      else
+	outs.push(arg.toString());
+    }
+
+    console.log(outs.join(' '));
+    document.getElementById('output').innerText += outs.join(' ');
+  }
+  
   function FakeSupervisor(cpuCount, gpuCount, sboxCount)
   {
     this.capabilities = {};
@@ -28,7 +46,7 @@ module.declare([], function(require, exports, module) {
     });
 
     this.cache.store = function(wordJob, jobAddress, jobStuff) {
-      console.log('got job', jobAddress, jobStuff);
+      output('got job', jobAddress, jobStuff);
     };
   }
   FakeSupervisor.prototype = new EventEmitter('FakeSupervisor');

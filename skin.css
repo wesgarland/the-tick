@@ -1,0 +1,74 @@
+HTML
+{
+  font-family: Arial, Helvetica, sans-serif;
+  color: #777;
+  background: #222;
+}
+
+BODY
+{
+  background: pink;
+}
+
+.top-bar
+{
+  background: #0b1b2b;
+  box-sizing: border-box;
+  border-bottom: 0px solid #999;
+  line-height: 100%;
+  color: #ddd;
+}
+
+.bottom-bar
+{
+  background: #eee;
+  box-sizing: border-box;
+  border-top: 0px solid #999;
+}
+
+.content
+{
+  background: #eee;
+}
+
+.menu
+{
+  background: #0e2439;
+  color: #eee;
+}
+
+.menu A,
+.menu A:visited
+{
+  color: #eee;
+  text-decoration: none
+}
+
+.menu A:hover
+{
+  text-decoration: underline
+}
+
+.content
+{
+  color: #222;
+}
+
+.menu ul li
+{
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+BODY #content
+{
+  background-image: url(images/the-tick.png);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+BODY[content]:not([content=""]) #content
+{
+  background-image: initial;
+}

@@ -1,0 +1,83 @@
+HTML
+{
+  height: 100%;
+  width: 100%;
+  font-size: 16px;
+}
+
+BODY
+{
+  height:   100%;
+  width:    100%;
+  padding:  0;
+  margin:   0;
+  overflow: hidden;
+}
+
+.top-bar
+{
+  position:   fixed;
+  top:      0;
+  height:   3em;
+  width:    100%;
+  overflow: hidden;
+}
+
+.menu
+{
+  position: fixed;
+  top:      3em;
+  height:   calc(100% - 3em);
+  width:    20em;
+  overflow: hidden;
+}
+
+.bottom-bar
+{
+  position:   fixed;
+  bottom:     0;
+  left:       20em;
+  height:     2em;
+  width:      100%;
+  overflow:   hidden;
+}
+
+.content
+{
+  position:   fixed;
+  top:        3em;
+  left:       20em;
+  height:     calc(100% - 3em - 2em);
+  width:      calc(100% - 20em);
+  overflow-x: hidden;
+  overflow-y: scroll;
+  padding-left: 0.5em;
+}
+
+.hcenter
+{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.vcenter
+{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.center
+{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.justify
+{
+  text-align: justify;
+  text-justify: inter-word;
+}
