@@ -72,3 +72,15 @@ BODY[content]:not([content=""]) #content
 {
   background-image: initial;
 }
+
+/** Appearance of work underway */
+#operate IFRAME
+{
+  font-size:    0.35em;
+  font-family:  lucida console, consolas, roboto, courier new, fixed;
+  height:       25em;
+  width:        80em;
+  margin:       0.5em;
+  border:       1px solid #777;
+  display:      inline-block;
+}

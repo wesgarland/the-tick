@@ -1,30 +1,17 @@
-module.declare([], function(require, exports, module) {
+'use strict';
+
+module.declare(['./output', 'subcontractor-manager'], function(require, exports, module) {
   const protocol         = require('dcp/protocol');
   const wallet           = require('dcp/wallet');
+  const output           = require('./output');
+
   const { Supervisor }   = require('dcp/worker');
   const { EventEmitter } = require('dcp/dcp-events');
-  
+  const { SubcontractorManager } = require('./subcontractor-manager');
+	  
   const debugging = require('dcp/debugging').scope('fake-worker');
   const stealMethods = [ 'fetchTask', 'workerOpaqueId', 'generateWorkerComputeGroups' ];
 
-  function output()
-  {
-    var outs = [];
-
-    for (let arg of arguments)
-    {
-      if (arg.inspect)
-	outs.push(arg.inspect());
-      else if (typeof arg === 'object')
-	outs.push(JSON.stringify(arg));
-      else
-	outs.push(arg.toString());
-    }
-
-    console.log(outs.join(' '));
-    document.getElementById('output').innerText += outs.join(' ');
-  }
-  
   function FakeSupervisor(cpuCount, gpuCount, sboxCount)
   {
     this.capabilities = {};
@@ -33,7 +20,7 @@ module.declare([], function(require, exports, module) {
     this.defaultMaxGPUs = gpuCount;
     this.maxWorkingSandboxes = sboxCount;
     this.paymentAddress = new wallet.Address('0x762cca1f37365097de14f12aea70c06cb8e58ef8');
-    this.cache = { jobs: [] };
+    this.cache = { jobs: [], jobDetails: {} };
     this.queuedSlices = [];
     this.authorizationMessages = {};
     this.slices = [];
@@ -44,10 +31,24 @@ module.declare([], function(require, exports, module) {
       debugging() && console.debug('Lost connection to', config.location.href);
       this.taskDistributorConnection = new protocol.Connection(dcpConfig.scheduler.services.taskDistributor);
     });
+    window.XXX = this;
 
-    this.cache.store = function(wordJob, jobAddress, jobStuff) {
-      output('got job', jobAddress, jobStuff);
+    this.cache.store = (scope, jobAddress, jobDetails) => {
+      const { publicName, publicDescription, computeGroups } = jobDetails.public;
+      window.YYY = jobDetails;
+      const computeGroupNames = computeGroups.map(cg => cg.name).join(' and ');
+
+      output.log('got job', jobAddress,
+		 'in', computeGroupNames, publicName + (publicDescription ? ` (${publicDescription})`: ''));
+      this.cache.jobDetails[jobAddress] = jobDetails;
+      if (!this.cache.seen)
+	console.log(jobDetails);
+      this.cache.seen = true;
+      if (scope !== 'job')
+	console.error('got weird scope', scope);
     };
+
+    this.debug = true;
   }
   FakeSupervisor.prototype = new EventEmitter('FakeSupervisor');
 
@@ -64,10 +65,18 @@ module.declare([], function(require, exports, module) {
     };
   }
 
-  exports.fetchTask = function fakeWorker$$fetchTask()
+  FakeSupervisor.prototype.subcontractWork = function FakeSupervisor$$subcontractWork()
   {
-  }
+    output.log('subcontracting work for', Object.entries(this.cache.jobDetails).length, 'jobs');
+    
+    for (let jobAddress in this.cache.jobDetails)
+    {
+      let jobDetails = this.cache.jobDetails[jobAddress];
+      let subManager = new SubcontractorManager(jobDetails);
 
-  window.XXX = FakeSupervisor;
+      delete this.cache.jobDetails[jobAddress];
+    }
+  }
+  
   exports.FakeSupervisor = FakeSupervisor;
 });
