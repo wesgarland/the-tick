@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8">
     <title>The Tick</title>
-    <script>var bravojs = { dependencyDebug: true }</script>
     <script src="http://wes.office.kingsds.network/git/bravojs/bravo.js"></script>
     <script src="http://scheduler.wes.office.kingsds.network/dcp-client/dcp-client.js"></script>
     <script src="./main.js"></script>
@@ -18,7 +17,12 @@
     <div id='bottom-bar' class='bottom-bar'></div>
     <div id='content'    class='content'></div>
 
-    <div class='top-bar'><center><h3>The Tick</h3></center></div>
+    <div class='top-bar'>
+      <div style="text-align: center; width: 20em">
+	<h3>The Tick</h3>
+      </div>
+    </div>
+
     <div class='menu'>
       <ul>
 	<li><a href="#about"     >About</a>
@@ -28,6 +32,7 @@
 	<li><a href="#view-stats">View Statistics</a>
       </ul>
     </div>
+
     <include class='content' id='about'      src='./about.html'     ></include>
     <include class='content' id='configure'  src='./configure.html' ></include>
     <include class='content' id='operate'    src='./operate.html'   ></include>
