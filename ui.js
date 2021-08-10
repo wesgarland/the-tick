@@ -10,8 +10,21 @@ module.declare(['./nodier'], (require, exports, module) => {
     if (window.location.hash)
       exports.hashChangeHandler();
 
+    /** Resolve the promise once document and include tags loaded */
     return new Promise((resolve) => {
-      document.on('includerFinished', resolve);
+      var onloadFired = document.readyState === 'complete';
+      var includerFinishedFired = document.body.includerPending === 0;
+
+      function maybeResolve()
+      {
+        if (onloadFired && includerFinishedFired)
+          resolve();
+      }
+       
+      document.on('includerFinished', () => { includerFinishedFired = true; maybeResolve() });
+      window.on('load', () => { onloadFired = true; maybeResolve() });
+
+      maybeResolve();
     });
   }
 
