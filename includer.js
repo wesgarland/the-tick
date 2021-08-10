@@ -12,16 +12,24 @@ document.addEventListener('DOMContentLoaded', function includer() {
   }
   
   window.addEventListener('message', function(ev) {
-    for (let entry of iframeIdx)
+    for (let i=0; i < iframeIdx.length; i++)
     {
-      if (ev.source === entry.iframe.contentWindow)
+      let entry = iframeIdx[i];
+
+      if (entry && (ev.source === entry.iframe.contentWindow))
       {
  	doit(ev.data, entry.docEl);
+
+	iframeIdx.splice(i--, 1);
+	document.body.includerPending = iframeIdx.length;
+	if (iframeIdx.length === 0)
+	  document.dispatchEvent(new Event('includerFinished'));
 	break;
       }
     }
   });      
 
+  
   for (let docEl of document.getElementsByTagName('include'))
   {
     let iframe = document.createElement('iframe');
@@ -29,5 +37,6 @@ document.addEventListener('DOMContentLoaded', function includer() {
     iframe.className = 'includer';
     iframeIdx.push({docEl, iframe});
     document.body.appendChild(iframe);
+    document.body.includerPending = iframeIdx.length;
   }
 });
