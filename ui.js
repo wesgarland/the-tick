@@ -2,7 +2,6 @@ module.declare(['./nodier'], (require, exports, module) => {
 
   exports.init = function ui$$init()
   {
-    console.log(require('./nodier'));
     require('./nodier').init();
 
     document.body.setAttribute('loaded', 'true');
@@ -10,6 +9,10 @@ module.declare(['./nodier'], (require, exports, module) => {
 
     if (window.location.hash)
       exports.hashChangeHandler();
+
+    return new Promise((resolve) => {
+      document.on('includerFinished', resolve);
+    });
   }
 
   exports.hashChangeHandler = function ui$$hashChangeHandler()
