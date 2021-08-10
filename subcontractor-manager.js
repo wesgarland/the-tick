@@ -10,7 +10,12 @@ module.declare((require, exports, module) => {
     {
       if (ev.source === entry.iframe.contentWindow)
       {
-	exports.SubcontractorManager.receiveMessage.apply(entry.instance, JSON.parse(ev.data));
+        exports.SubcontractorManager.receiveMessage.call(entry.instance, JSON.parse(ev.data));
+        entry.instance.sendMessage = function SubcontractorManager$$sendMessage(message)
+        {
+          message = JSON.stringify(message);
+          entry.iframe.contentWindow.postMessage(message, '*');
+        }
         break;
       }
     }
@@ -34,13 +39,14 @@ module.declare((require, exports, module) => {
    * "ready for slice" 
    * "here come results" 
    */
-  exports.SubcontractorManager.receiveMessage = function SubcontractorManage$$receiveMessage(message, element)
+  exports.SubcontractorManager.receiveMessage = function SubcontractorManage$$receiveMessage(message)
   {
-    console.log('MESSAGE', message);
+    console.log('MESSAGE', message, this);
     debugger;
     switch(message.type)
     {
       case 'ready':
+      this.sendMessage({hooray: true});
       break;
     }
   }
