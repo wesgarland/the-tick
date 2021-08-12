@@ -1,4 +1,8 @@
+'use strict';
+
 module.declare((require, exports, module) => {
+  const wallet = require('dcp/wallet');
+  
   var iframeIdx = [];
 
   function $(s) {
@@ -10,12 +14,12 @@ module.declare((require, exports, module) => {
     {
       if (ev.source === entry.iframe.contentWindow)
       {
-        exports.SubcontractorManager.receiveMessage.call(entry.instance, JSON.parse(ev.data));
+	/* establish reply comms channel in advance */
         entry.instance.sendMessage = function SubcontractorManager$$sendMessage(message)
         {
-          message = JSON.stringify(message);
           entry.iframe.contentWindow.postMessage(message, '*');
         }
+        exports.SubcontractorManager.receiveMessage.call(entry.instance, ev.data);
         break;
       }
     }
@@ -28,27 +32,33 @@ module.declare((require, exports, module) => {
     iframe.setAttribute('src', './subcontractor.html');
     iframe.className = 'subcontractor';
     iframeIdx.push({iframe, instance: this});
-    $('#operate').appendChild(iframe);
 
+    $('#operate').appendChild(iframe);
+ 
     this.jobDetails = jobDetails;
     this.slices = slices;
   }
 
   /** 
    * "ready for work"
-   * "ready for slice" 
-   * "here come results" 
+   * "have a result" 
    */
-  exports.SubcontractorManager.receiveMessage = function SubcontractorManage$$receiveMessage(message)
+  exports.SubcontractorManager.receiveMessage = async function SubcontractorManage$$receiveMessage(message)
   {
-    console.log('MESSAGE', message, this);
-    debugger;
+    var bankKs, bankPk;
+    
+    bankKs = await wallet.get();
+    await bankKs.unlock(undefined, 1800, true);
+    bankPk = await bankKs.getPrivateKey();
+
     switch(message.type)
     {
-      case 'ready':
-      this.sendMessage({hooray: true});
+      case 'ready': /* ready? send down the job and a way to pay for it */
+      this.sendMessage({cmd: 'job', jobDetails: this.jobDetails, slices: this.slices, bankPkStr: bankPk.toString()});
+      break;
+      case 'result':
+        alert('result: ' + JSON.stringify(message));
       break;
     }
   }
-
 });
