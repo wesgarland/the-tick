@@ -11,7 +11,7 @@ for (let key of Object.keys(dcpConfig.scheduler.services))
     continue;
   
   svc.location = new DcpURL(prod.origin + svc.location.pathname);
-  console.log(svc.location.href);
 }
+console.log('patched dcpConfig to use services on', prod.origin);
 
 module.declare([], (require, exports, module) => {}); /* end of module */

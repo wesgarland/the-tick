@@ -4,11 +4,11 @@
 module.declare(['./patch-config', './ui', './fake-worker'], async function mainModule(require, exports, module) {
   const wallet = require('dcp/wallet');
   const output = require('./output');
-  
+
   const { Inventory } = require('dcp/utils').Inventory;
   const { fetch, fobOff } = require('./fake-worker');
-  const fakeCPUs = 5;
-  const fakeGPUs = 1;
+  const fakeCPUs = 2;
+  const fakeGPUs = 0;
   var fs;
   
   await require('./ui').init();
