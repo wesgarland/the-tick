@@ -8,7 +8,7 @@ module.declare(['./output', 'subcontractor-manager'], function(require, exports,
   const { Supervisor }   = require('dcp/worker');
   const { EventEmitter } = require('dcp/dcp-events');
   const { SubcontractorManager } = require('./subcontractor-manager');
-	  
+          
   const debugging = require('dcp/debugging').scope('fake-worker');
   const stealMethods = [ 'fetchTask', 'workerOpaqueId', 'generateWorkerComputeGroups' ];
 
@@ -37,13 +37,13 @@ module.declare(['./output', 'subcontractor-manager'], function(require, exports,
       const computeGroupNames = computeGroups.map(cg => cg.name).join(' and ');
 
       output.log('got job', jobAddress,
-		 'in', computeGroupNames, publicName + (publicDescription ? ` (${publicDescription})`: ''));
+                 'in', computeGroupNames, publicName + (publicDescription ? ` (${publicDescription})`: ''));
       this.cache.jobDetails[jobAddress] = jobDetails;
       if (!this.cache.seen)
-	console.log(jobDetails);
+        console.log(jobDetails);
       this.cache.seen = true;
       if (scope !== 'job')
-	console.error('got weird scope', scope);
+        console.error('got weird scope', scope);
     };
 
     this.debug = true;
@@ -63,21 +63,29 @@ module.declare(['./output', 'subcontractor-manager'], function(require, exports,
     };
   }
 
-  FakeSupervisor.prototype.subcontractWork = function FakeSupervisor$$subcontractWork()
+  FakeSupervisor.prototype.subcontractWork = async function FakeSupervisor$$subcontractWork()
   {
     var i=0;
-    
+
     output.log('subcontracting work for', Object.entries(this.cache.jobDetails).length, 'jobs');
+    bankKs = await wallet.get();
+    await bankKs.unlock(undefined, 1800, true);
+    output.log('payment address is', bankKs.address);
     
     for (let jobAddress in this.cache.jobDetails)
     {
       let jobDetails = this.cache.jobDetails[jobAddress];
-//      let subManager = new SubcontractorManager(jobDetails, this.slices);
-      setTimeout(() => new SubcontractorManager(jobDetails, this.slices), i++ * 1100 + 200); 
+      setTimeout(() => new SubcontractorManager(bankKs, jobDetails, this.slices), i++ * 2500 + 200); 
 
+      if (i === 1)
+      {
+        output.log('Running one slice locally from', jobAddress);
+        new SubcontractorManager(bankKs, jobDetails, [this.slices[0]] , true);
+      }
+      
       delete this.cache.jobDetails[jobAddress];
     }
   }
-  
+
   exports.FakeSupervisor = FakeSupervisor;
 });

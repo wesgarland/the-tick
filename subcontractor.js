@@ -17,12 +17,12 @@ module.declare(['./patch-config', './nodier', './output'], async (require, expor
   idKs = await wallet.getId();
   output.log('identity is', idKs.address);
   window.parent.postMessage({ type: 'ready' }, '*');
-  
+
   window.on('message', function handleMessage(ev)
   {
     if (ev.source === ev.target)
     {
-      console.log('ignoring message', ev);
+//      console.log('subcontractor ignoring message', ev);
       return;
     }
 
@@ -33,11 +33,11 @@ module.declare(['./patch-config', './nodier', './output'], async (require, expor
       
       switch(message.cmd)
       {
-	case 'job':
-        handleJob(message);
-	break;
-	default:
-    	  throw new Error(`unknown command '${message.cmd}'`);
+        case 'job':
+          handleJob(message);
+        break;
+        default:
+          throw new Error(`unknown command '${message.cmd}'`);
       }
     }
     catch(error)
@@ -57,14 +57,14 @@ module.declare(['./patch-config', './nodier', './output'], async (require, expor
       return new URL(uri);
   }
 
-  async function handleJob({jobDetails, slices, bankPkStr}={})
+  async function handleJob({jobDetails, slices, bankPkStr, localExec}={})
   {
     var slice, arg;
     var job, inputSet = [], work, args, outputSet;
     var bankPk = new wallet.PrivateKey(bankPkStr);
     var bankKs = await (new wallet.AuthKeystore(bankPk, ''));
 
-    output.log('job', jobDetails.address, `(${jobDetails.public.name + '; ' + jobDetails.public.description})`);
+    output.log(localExec ? 'localExec job' : 'job', jobDetails.address, `(${jobDetails.public.name + '; ' + jobDetails.public.description})`);
     output.log('job fragment has', slices.length, 'slices');
 
     bankKs.label='you should never see this'; /* not you */
@@ -100,7 +100,10 @@ module.declare(['./patch-config', './nodier', './output'], async (require, expor
     job.public.name = 'MOOOOHOOOOOHAHAHAHAH ' + jobDetails.public.name;
     
     output.log('sending to scheduler', dcpConfig.scheduler.services.jobSubmit.location.origin);
-    outputSet = await job.exec(compute.marketValue(0.9));
+    if (localExec)
+      outputSet = await job.localExec();
+    else
+      outputSet = await job.exec();
     output.log(' - Finished job', job.id);
     console.log(outputSet);
   }
