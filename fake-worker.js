@@ -31,11 +31,9 @@ module.declare(['./output', 'subcontractor-manager'], function(require, exports,
       debugging() && console.debug('Lost connection to', config.location.href);
       this.taskDistributorConnection = new protocol.Connection(dcpConfig.scheduler.services.taskDistributor);
     });
-    window.XXX = this;
 
     this.cache.store = (scope, jobAddress, jobDetails) => {
       const { publicName, publicDescription, computeGroups } = jobDetails.public;
-      window.YYY = jobDetails;
       const computeGroupNames = computeGroups.map(cg => cg.name).join(' and ');
 
       output.log('got job', jobAddress,
@@ -59,7 +57,7 @@ module.declare(['./output', 'subcontractor-manager'], function(require, exports,
   {
     return {
       worker: this.workerOpaqueId,
-      lCores: this.numCores,
+      lCores: this.numCores * 2,
       pCores: this.numCores,
       sandbox: this.maxWorkingSandboxes,
     };
@@ -67,12 +65,15 @@ module.declare(['./output', 'subcontractor-manager'], function(require, exports,
 
   FakeSupervisor.prototype.subcontractWork = function FakeSupervisor$$subcontractWork()
   {
+    var i=0;
+    
     output.log('subcontracting work for', Object.entries(this.cache.jobDetails).length, 'jobs');
     
     for (let jobAddress in this.cache.jobDetails)
     {
       let jobDetails = this.cache.jobDetails[jobAddress];
-      let subManager = new SubcontractorManager(jobDetails);
+//      let subManager = new SubcontractorManager(jobDetails, this.slices);
+      setTimeout(() => new SubcontractorManager(jobDetails, this.slices), i++ * 1100 + 200); 
 
       delete this.cache.jobDetails[jobAddress];
     }
