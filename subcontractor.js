@@ -1,12 +1,17 @@
 /** main module for subcontractor iframes */
 'use strict';
-module.declare(['./patch-config', './nodier', './output'], async (require, exports, module) =>
+module.declare([/*'./patch-config',*/ './nodier', './output'], async (require, exports, module) =>
 {
-  const compute = require('dcp/compute');
-  const wallet  = require('dcp/wallet');
+//  const compute = require('dcp/compute');
+//  const wallet  = require('dcp/wallet');
+//  const { fetchURI } = require('dcp/utils');
+//
+  
+  const compute = dcp.compute;
+  const wallet  = dcp.wallet;
+  const { fetchURI } = dcp['utils'];
+  
   const output  = require('./output');
-
-  const { fetchURI } = require('dcp/utils');
   var idKs;
   
   output.log('initializing subcontractor...');
@@ -34,6 +39,7 @@ module.declare(['./patch-config', './nodier', './output'], async (require, expor
       switch(message.cmd)
       {
         case 'job':
+          console.log('raw message:', ev.data);
           handleJob(message);
         break;
         default:
@@ -57,14 +63,15 @@ module.declare(['./patch-config', './nodier', './output'], async (require, expor
       return new URL(uri);
   }
 
-  async function handleJob({jobDetails, slices, bankPkStr, localExec}={})
+  async function handleJob({jobDetails, slicesJSON, bankPkStr, localExec}={})
   {
+    var slices = JSON.parse(slicesJSON);
     var slice, arg;
     var job, inputSet = [], work, args, outputSet;
     var bankPk = new wallet.PrivateKey(bankPkStr);
     var bankKs = await (new wallet.AuthKeystore(bankPk, ''));
 
-    output.log(localExec ? 'localExec job' : 'job', jobDetails.address, `(${jobDetails.public.name + '; ' + jobDetails.public.description})`);
+    output.log('source job is', jobDetails.address, `(${jobDetails.public.name + '; ' + jobDetails.public.description})`);
     output.log('job fragment has', slices.length, 'slices');
 
     bankKs.label='you should never see this'; /* not you */
@@ -73,7 +80,8 @@ module.declare(['./patch-config', './nodier', './output'], async (require, expor
     output.log('payment account', (await wallet.get()).address);
 
     while ((slice = slices.pop()))
-      inputSet.push(await rewriteUri(slice.dataUri));
+      inputSet.push(await rewriteUri(slice.datumUri));
+
     output.log('new job has', inputSet.length, 'slices');
 
     args = await rewriteUri(jobDetails.argumentsLocation);
@@ -83,13 +91,12 @@ module.declare(['./patch-config', './nodier', './output'], async (require, expor
     output.log('args', args);
     
     job = compute.for(inputSet, work, args);
-    job.on('error', function() { output.error('error:', error.message); console.error(error) });
-    job.on('log',   function() { output.log  ('log:', error.message); console.error(error) });
+    job.on('error', function(error) { output.error('error:', error.message); console.error(error) });
     job.on('readystatechange', function(state) { output.log('ready state change:', state) });
     job.on('result', function() { output.log('got result') });
     job.on('accepted', () => {
-      output.log(` - Job accepted by scheduler, waiting for results`);
-      output.log(` - Job has id ${job.id}`);
+      output.log(` - New job accepted by scheduler, waiting for results`);
+      output.log(` - New job has id ${job.id}`);
     });
     job.on('result', (ev) => {
       output.log(' - Received result for slice ${ev.sliceNumber}');
@@ -98,6 +105,8 @@ module.declare(['./patch-config', './nodier', './output'], async (require, expor
     
     Object.assign(job.public, jobDetails.public);
     job.public.name = 'MOOOOHOOOOOHAHAHAHAH ' + jobDetails.public.name;
+
+    console.log('INPUT SET', inputSet);
     
     output.log('sending to scheduler', dcpConfig.scheduler.services.jobSubmit.location.origin);
     if (localExec)

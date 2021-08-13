@@ -56,7 +56,7 @@ module.declare((require, exports, module) => {
       this.sendMessage({
         cmd:        'job',
         jobDetails: this.jobDetails,
-        slices:     this.slices,
+        slicesJSON: JSON.stringify(this.slices),
         bankPkStr:  bankPk.toString(),
         localExec:  this.localExec,
       });
