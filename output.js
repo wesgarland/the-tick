@@ -9,12 +9,12 @@ module.declare((require, exports, module) => {
 
     for (let arg of arguments)
     {
-      if (typeof arg === 'object' && arg.inspect)
-	outs.push(arg.inspect());
+      if (typeof arg === 'object' && arg !== null && arg.inspect)
+        outs.push(arg.inspect());
       else if (typeof arg === 'object')
-	outs.push(JSON.stringify(arg));
+        outs.push(JSON.stringify(arg));
       else
-	outs.push(arg + '');
+        outs.push(arg + '');
     }
 
     if (!outs.length)
