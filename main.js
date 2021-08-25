@@ -21,4 +21,6 @@ module.declare(['./patch-config', './ui', './fake-worker'], async function mainM
   fs.on('fetchedTask',     (ev) => fs.subcontractWork());
   fs.on('fetchTaskFailed', (error) => console.error(error));
   fs.fetchTask(fakeCPUs);
+
+  exports.fs = fs;
 });

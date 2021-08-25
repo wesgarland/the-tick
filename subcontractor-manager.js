@@ -5,10 +5,15 @@ module.declare((require, exports, module) => {
 
   var iframeIdx = [];
 
+  /* jQuery, the good parts */
   function $(s) {
     return document.querySelector(s);
   }
 
+  /* Receive messages sent to this window, figure out which iframe they 
+   * came from, and relay to the receiveMessage handler in the correct
+   * instance of SubcontractorManager
+   */
   window.addEventListener('message', function(ev) {
     for (let entry of iframeIdx)
     {
@@ -23,9 +28,12 @@ module.declare((require, exports, module) => {
         return;
       }
     }
-//    console.log('subcontractor-manager ignoring message', ev);
   });
 
+  /** 
+   * @constructor
+   * Manages an iframe which is running subcontractor.html / subcontractor.js.
+   */
   exports.SubcontractorManager = function SubcontractorManager(bankKs, jobDetails, slices, localExec)
   {
     var iframe = document.createElement('iframe');
@@ -43,7 +51,7 @@ module.declare((require, exports, module) => {
   }
 
   /** 
-   * "ready for work"
+   * ready -> ready for wo
    * "have a result" 
    */
   exports.SubcontractorManager.receiveMessage = async function SubcontractorManage$$receiveMessage(message)

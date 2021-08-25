@@ -99,13 +99,15 @@ module.declare([/*'./patch-config',*/ './nodier', './output'], async (require, e
       output.log(` - New job has id ${job.id}`);
     });
     job.on('result', (ev) => {
-      output.log(' - Received result for slice ${ev.sliceNumber}');
+      output.log(` - Received result for slice ${ev.sliceNumber}`);
       output.log(' * result:', ev.result);
+//      window.parent.postMessage({ type: 'result', ev.result }, '*');
     }); 
     
     Object.assign(job.public, jobDetails.public);
     job.public.name = 'MOOOOHOOOOOHAHAHAHAH ' + jobDetails.public.name;
-
+//    job.computeGroups = [ { joinSecret: 'dcp', joinKey: 'demo' } ]; /* this is where we'll steal jobs from */
+    
     console.log('INPUT SET', inputSet);
     
     output.log('sending to scheduler', dcpConfig.scheduler.services.jobSubmit.location.origin);
@@ -114,6 +116,7 @@ module.declare([/*'./patch-config',*/ './nodier', './output'], async (require, e
     else
       outputSet = await job.exec();
     output.log(' - Finished job', job.id);
+    window.parent.postMessage({ type: 'complete', jobId: jobId }, '*');
     console.log(outputSet);
   }
 });

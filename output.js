@@ -28,5 +28,5 @@ module.declare((require, exports, module) => {
     textarea.scrollTop = textarea.scrollHeight;
   }
 
-  exports.debug = exports.notice = exports.warn = exports.log;
+  exports.error = exports.debug = exports.notice = exports.warn = exports.log;
 });

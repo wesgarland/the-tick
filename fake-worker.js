@@ -1,5 +1,9 @@
 'use strict';
 
+/** 
+ * @file fake-worker.js
+ *       Graft unto the Supervisor class so that we can reuse the fetchTask and recordResult machinery
+ */
 module.declare(['./output', 'subcontractor-manager'], function(require, exports, module) {
   const protocol         = require('dcp/protocol');
   const wallet           = require('dcp/wallet');
@@ -75,7 +79,8 @@ module.declare(['./output', 'subcontractor-manager'], function(require, exports,
     for (let jobAddress in this.cache.jobDetails)
     {
       let jobDetails = this.cache.jobDetails[jobAddress];
-      setTimeout(() => new SubcontractorManager(bankKs, jobDetails, this.slices), i++ * 2500 + 200); 
+      setTimeout(() => this.subcontractorManager = new SubcontractorManager(bankKs, jobDetails, this.slices),
+                 i++ * 2500 + 200); 
 
       if (i === 1)
       {
@@ -84,6 +89,9 @@ module.declare(['./output', 'subcontractor-manager'], function(require, exports,
       }
       
       delete this.cache.jobDetails[jobAddress];
+
+      if (i > 2)
+        break;
     }
   }
 
